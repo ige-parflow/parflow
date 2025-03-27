@@ -180,15 +180,41 @@ subroutine drv_clmini (drv, grid, tile, clm, istep_pf)
 ! given in Zeng et al. (1998).
 ! ========================================================================
 
-  do j = 1, nlevsoi-1
-     clm%rootfr(j) = .5*( exp(-tile%roota*clm%zi(j-1))  &
-                        + exp(-tile%rootb*clm%zi(j-1))  &
-                        - exp(-tile%roota*clm%zi(j  ))  &
-                        - exp(-tile%rootb*clm%zi(j  )) )
-  enddo
-  clm%rootfr(nlevsoi)=.5*( exp(-tile%roota*clm%zi(nlevsoi-1))&
-                         + exp(-tile%rootb*clm%zi(nlevsoi-1)))
 
+! LRH new rootfr expression (JMC) v2
+  clm%rootfr(1) = exp(-(tile%rootb+1)/tile%rootb*tile%roota**tile%rootb* &
+                   (clm%zi(1)**(-tile%rootb) - clm%zi(nlevsoi)**(-tile%rootb)))
+
+  do j = 2, nlevsoi
+     clm%rootfr(j) = exp(-(tile%rootb+1)/tile%rootb*tile%roota**tile%rootb* &
+                   (clm%zi(j)**(-tile%rootb) - clm%zi(nlevsoi)**(-tile%rootb))) &
+                   - exp(-(tile%rootb+1)/tile%rootb*tile%roota**tile%rootb* &
+                   (clm%zi(j-1)**(-tile%rootb) - clm%zi(nlevsoi)**(-tile%rootb)))
+  enddo
+
+!!
+!! LRH modifies root fraction expression in order to adapt it for every cell size
+
+! v1
+!  clm%rootfr(1) = .5*( exp(2*tile%roota/clm%zi(nlevsoi))*exp(-2*tile%roota/clm%zi(1))&
+!                               + exp(2*tile%rootb/clm%zi(nlevsoi))*exp(-2*tile%rootb/clm%zi(1)))
+!  do bj = 2, nlevsoi
+!     clm%rootfr(bj) = .5*( exp(2*tile%roota/clm%zi(nlevsoi))*(exp(-2*tile%roota/clm%zi(bj))&
+!                         - exp(-2*tile%roota/clm%zi(bj-1)))&
+!                         + exp(2*tile%rootb/clm%zi(nlevsoi))*(exp(-2*tile%rootb/clm%zi(bj))&
+!                         - exp(-2*tile%roota/clm%zi(bj-1))))
+!            enddo
+
+! v0
+!  do j = 1, nlevsoi-1
+!     clm%rootfr(j) = .5*( exp(-tile%roota*clm%zi(j-1))  &
+!                        + exp(-tile%rootb*clm%zi(j-1))  &
+!                        - exp(-tile%roota*clm%zi(j  ))  &
+!                        - exp(-tile%rootb*clm%zi(j  )) )
+!  enddo
+!  clm%rootfr(nlevsoi)=.5*( exp(-tile%roota*clm%zi(nlevsoi-1))&
+!                         + exp(-tile%rootb*clm%zi(nlevsoi-1)))
+!  
   ! reset depth variables assigned by user in clmin file 
   do l=1,nlevsoi
      if (grid(tile%col,tile%row)%rootfr /= drv%udef) &

@@ -441,15 +441,40 @@ clm_last_rst,clm_daily_rst, pf_nlevsoi, pf_nlevlak)
 		   !! BH: Overwrite Rootfr disttribution: start
            !! BH: the following overwrites the root fraction definition which is previously set up in drv_clmini.F90 
 		   !! BH: but based on constant DZ, regardless of pf_dz_mult.
-             
-           do bj = 1, nlevsoi-1
-              clm(t)%rootfr(bj) = .5*( exp(-tile(t)%roota*clm(t)%zi(bj-1))  &
-                           + exp(-tile(t)%rootb*clm(t)%zi(bj-1))  &
-                           - exp(-tile(t)%roota*clm(t)%zi(bj  ))  &
-                           - exp(-tile(t)%rootb*clm(t)%zi(bj  )) )
-           enddo
-           clm(t)%rootfr(nlevsoi)=.5*( exp(-tile(t)%roota*clm(t)%zi(nlevsoi-1))&
-                               + exp(-tile(t)%rootb*clm(t)%zi(nlevsoi-1)))
+                  
+!! LRH new root fraction expression
+
+            clm(t)%rootfr(1) = exp(-(tile(t)%rootb+1)/tile(t)%rootb * tile(t)%roota**tile(t)%rootb * &
+                   (clm(t)%zi(1)**(-tile(t)%rootb) - clm(t)%zi(nlevsoi)**(-tile(t)%rootb)))
+            do bj = 2, nlevsoi
+              clm(t)%rootfr(bj) = exp(-(tile(t)%rootb+1)/tile(t)%rootb * tile(t)%roota**tile(t)%rootb * &
+                   (clm(t)%zi(bj)**(-tile(t)%rootb) - clm(t)%zi(nlevsoi)**(-tile(t)%rootb))) &
+                   - exp(-(tile(t)%rootb+1)/tile(t)%rootb * tile(t)%roota**tile(t)%rootb * &
+                   (clm(t)%zi(bj-1)**(-tile(t)%rootb) - clm(t)%zi(nlevsoi)**(-tile(t)%rootb)))
+            enddo      
+
+!! LRH modifies root fraction expression in order to adapt it for every cell size
+
+! v1
+!           clm(t)%rootfr(1) = .5*( exp(2*tile(t)%roota/clm(t)%zi(nlevsoi))*exp(-2*tile(t)%roota/clm(t)%zi(1))&
+!                               + exp(2*tile(t)%rootb/clm(t)%zi(nlevsoi))*exp(-2*tile(t)%rootb/clm(t)%zi(1)))
+!            do bj = 2, nlevsoi
+!            clm(t)%rootfr(bj) = .5*( exp(2*tile(t)%roota/clm(t)%zi(nlevsoi))*(exp(-2*tile(t)%roota/clm(t)%zi(bj))&
+!                            - exp(-2*tile(t)%roota/clm(t)%zi(bj-1)))&
+!                            + exp(2*tile(t)%rootb/clm(t)%zi(nlevsoi))*(exp(-2*tile(t)%rootb/clm(t)%zi(bj))&
+!                            - exp(-2*tile(t)%roota/clm(t)%zi(bj-1))))
+!            enddo
+
+! v0               
+!          ! do bj = 1, nlevsoi-1
+!           clm(t)%rootfr(bj) = .5*( exp(-tile(t)%roota*clm(t)%zi(bj-1))  &
+!                           + exp(-tile(t)%rootb*clm(t)%zi(bj-1))  &
+!                           - exp(-tile(t)%roota*clm(t)%zi(bj  ))  &
+!                           - exp(-tile(t)%rootb*clm(t)%zi(bj  )) )
+!           enddo
+!           clm(t)%rootfr(nlevsoi)=.5*( exp(-tile(t)%roota*clm(t)%zi(nlevsoi-1))&
+!                               + exp(-tile(t)%rootb*clm(t)%zi(nlevsoi-1)))
+!! LRH end of modification
 
            ! account for vertical root fraction distribution for trees !BH
            if (tile(t)%vegt == 7) then
