@@ -9,6 +9,8 @@ This script can be found on the jupyter lab @Openreprolab
 
 # Create environment with mamba
 
+Two ways to install the environment:
+
 1. Step by step
 
 ```bash
@@ -20,23 +22,35 @@ This script can be found on the jupyter lab @Openreprolab
  pip install pftools[all]
 ```
 
-2. OR create the env from  the given yaml file (/mnt/data-summer-shared/Softs/Parflow/)
-
-mamba env create -n myparflow  -f  parflow.yaml 
-
-Once the mamba environment created, you can copy and execute the file install_openreprolab.sh
-and run
+2. Or (recommended)  create the env from  the given yaml file (/mnt/data-summer-shared/Softs/Parflow/)
 
 ```bash
+mamba env create -n myparflow  -f  parflow.yaml 
+```
+
+
+Once the mamba environment created, you can copy and execute the file install_openreprolab.sh
+
+```bash
+cp /mnt/data-summer-shared/Softs/Parflow/install_openreprolab.sh .
 bash install_openreprolab.sh
 ```
 
-Make sure to change the WORKDIR to adapt to your desired path installation 
+Make sure to change the **WORKDIR** to adapt to your desired path installation 
+
+You are now done, everything should be installed in your **WORKDIR**
+
+In order to work with a jupyter notebook, create the corresponding kernel
+
+```bash
+ mamba  install ipykernel
+ python -m ipykernel install --name parflow --user --display-name "Parflow Env"
+```
 
 Here is the content of this file , in case you want to execute step by step
 
 
-# Openreprolab  jupyterlab install 
+# Openreprolab parflow dependencies (already installed)
 
 export INSTALL_DIR=/mnt/data-summer-shared/Softs/Parflow/common
 
