@@ -47,8 +47,31 @@ In order to work with a jupyter notebook, create the corresponding kernel
  python -m ipykernel install --name parflow --user --display-name "Parflow Env"
 ```
 
-Here is the content of this file , in case you want to execute step by step
+# Running parflow
 
+Make sure to set the environment variable before your run
+
+```bash
+export PARFLOW_DIR=/home/jovyan/Parflow/PFTree/parflow-devs/parflow-dev_NEIGE
+
+export LD_LIBRARY_PATH=/mnt/data-summer-shared/Softs/Parflow/common/hdf5-1.12.0-install/lib:/mnt/data-summer-shared/Softs/Parflow/common/netcdf-4.7.2-install/lib:/mnt/data-summer-shared/Softs/Parflow/common/hypre-2.1-install/lib:/mnt/data-summer-shared/Softs/Parflow/common/silo-4.10.2-install/lib:$LD_LIBRARY_PATH
+```
+
+If you have an error related to numpy:
+
+```warning
+AttributeError: module 'numpy' has no attribute '__version__'
+```
+
+You can downgrade the version of numpy 
+
+
+```bash
+mamba install 'numpy<2'
+```
+
+
+# Parflow installation steps
 
 # Openreprolab parflow dependencies (already installed)
 
