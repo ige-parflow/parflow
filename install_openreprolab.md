@@ -22,7 +22,7 @@ Two ways to install the environment:
  pip install pftools[all]
 ```
 
-2. Or (recommended)  create the env from  the given yaml file (/mnt/data-summer-shared/Softs/Parflow/)
+2. Or (recommended)  create the env from  the given yaml file (/mnt/data-summer-shared/Softs/Parflow/parflow.yaml)
 
 ```bash
 mamba env create -n myparflow  -f  parflow.yaml 
