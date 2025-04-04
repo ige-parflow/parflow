@@ -265,6 +265,7 @@ typedef struct {
   Vector *qflx_tran_veg;        /* trans from veg [mm/s] */
   Vector *qflx_infl;            /* infiltration [mm/s] */
   Vector *swe_out;              /* snow water equivalent [mm] */
+  Vector *surfalb_out;          /** ARY : surface albedo */  
   Vector *t_grnd;               /* CLM soil surface temperature [K] */
   Vector *tsoil;                /* CLM soil temp, all 10 layers [K] */
   Grid *gridTs;                 /* New grid for tsoil (nx*ny*10) */
@@ -956,6 +957,12 @@ SetupRichards(PFModule * this_module)
       NewVectorType(grid2d, 1, 1, vector_cell_centered_2D);
     InitVectorAll(instance_xtra->swe_out, 0.0);
 
+    /*ARY*/
+    instance_xtra->surfalb_out =
+      NewVectorType(grid2d, 1, 1, vector_cell_centered_2D);
+    InitVectorAll(instance_xtra->surfalb_out, 0.0);
+    /*ARY*/
+
     instance_xtra->t_grnd =
       NewVectorType(grid2d, 1, 1, vector_cell_centered_2D);
     InitVectorAll(instance_xtra->t_grnd, 0.0);
@@ -1275,7 +1282,7 @@ SetupRichards(PFModule * this_module)
                    ProblemDataWellData(problem_data),
                    t, WELLDATA_WRITEHEADER);
       }
-      sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+      sprintf(nc_postfix, "%07d", instance_xtra->file_number);
       if (public_xtra->write_netcdf_press || public_xtra->write_netcdf_satur
           || public_xtra->write_netcdf_mannings
           || public_xtra->write_netcdf_subsurface
@@ -1293,7 +1300,7 @@ SetupRichards(PFModule * this_module)
 
       if (print_press)
       {
-        sprintf(file_postfix, "press.%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "press.%07d", instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix, instance_xtra->pressure);
         any_file_dumped = 1;
 
@@ -1308,7 +1315,7 @@ SetupRichards(PFModule * this_module)
 
       if (public_xtra->write_silo_press)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         strcpy(file_type, "press");
         WriteSilo(file_prefix, file_type, file_postfix,
                   instance_xtra->pressure, t, instance_xtra->file_number,
@@ -1318,7 +1325,7 @@ SetupRichards(PFModule * this_module)
 
       if (public_xtra->write_silopmpio_press)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         strcpy(file_type, "press");
         WriteSiloPMPIO(file_prefix, file_type, file_postfix,
                        instance_xtra->pressure, t,
@@ -1327,8 +1334,8 @@ SetupRichards(PFModule * this_module)
       }
       if (public_xtra->write_netcdf_press)
       {
-        sprintf(file_postfix, "press.%05d", instance_xtra->file_number);
-        sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "press.%07d", instance_xtra->file_number);
+        sprintf(nc_postfix, "%07d", instance_xtra->file_number);
         WritePFNC(file_prefix, nc_postfix, t, instance_xtra->pressure,
                   public_xtra->numVarTimeVariant, "pressure", 3, true,
                   public_xtra->numVarIni);
@@ -1340,7 +1347,7 @@ SetupRichards(PFModule * this_module)
 
     if (print_satur)
     {
-      sprintf(file_postfix, "satur.%05d", instance_xtra->file_number);
+      sprintf(file_postfix, "satur.%07d", instance_xtra->file_number);
       WritePFBinary(file_prefix, file_postfix,
                     instance_xtra->saturation);
       any_file_dumped = 1;
@@ -1356,7 +1363,7 @@ SetupRichards(PFModule * this_module)
 
       if (public_xtra->write_silo_satur)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         strcpy(file_type, "satur");
         WriteSilo(file_prefix, file_type, file_postfix,
                   instance_xtra->saturation, t, instance_xtra->file_number,
@@ -1366,7 +1373,7 @@ SetupRichards(PFModule * this_module)
 
       if (public_xtra->write_silopmpio_satur)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         strcpy(file_type, "satur");
         WriteSiloPMPIO(file_prefix, file_type, file_postfix,
                        instance_xtra->saturation, t,
@@ -1375,8 +1382,8 @@ SetupRichards(PFModule * this_module)
       }
       if (public_xtra->write_netcdf_satur)
       {
-        sprintf(file_postfix, "satur.%05d", instance_xtra->file_number);
-        sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "satur.%07d", instance_xtra->file_number);
+        sprintf(nc_postfix, "%07d", instance_xtra->file_number);
         WritePFNC(file_prefix, nc_postfix, t, instance_xtra->saturation,
                   public_xtra->numVarTimeVariant, "saturation", 3, true,
                   public_xtra->numVarIni);
@@ -1388,7 +1395,7 @@ SetupRichards(PFModule * this_module)
        *-----------------------------------------------------------------*/
       if (public_xtra->write_netcdf_mannings)
       {
-        sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+        sprintf(nc_postfix, "%07d", instance_xtra->file_number);
         WritePFNC(file_prefix, nc_postfix, t,
                   ProblemDataMannings(problem_data),
                   public_xtra->numVarTimeVariant, "mannings", 2, true,
@@ -1401,7 +1408,7 @@ SetupRichards(PFModule * this_module)
        *-----------------------------------------------------------------*/
       if (public_xtra->write_netcdf_subsurface)
       {
-        sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+        sprintf(nc_postfix, "%07d", instance_xtra->file_number);
         WritePFNC(file_prefix, nc_postfix, t,
                   ProblemDataPermeabilityX(problem_data),
                   public_xtra->numVarTimeVariant, "perm_x", 3, true,
@@ -1430,7 +1437,7 @@ SetupRichards(PFModule * this_module)
        *-----------------------------------------------------------------*/
       if (public_xtra->write_netcdf_slopes)
       {
-        sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+        sprintf(nc_postfix, "%07d", instance_xtra->file_number);
         WritePFNC(file_prefix, nc_postfix, t,
                   ProblemDataTSlopeX(problem_data),
                   public_xtra->numVarTimeVariant, "slopex", 2, true,
@@ -1447,7 +1454,7 @@ SetupRichards(PFModule * this_module)
        *-----------------------------------------------------------------*/
       if (public_xtra->write_netcdf_dzmult)
       {
-        sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+        sprintf(nc_postfix, "%07d", instance_xtra->file_number);
         WritePFNC(file_prefix, nc_postfix, t, instance_xtra->dz_mult,
                   public_xtra->numVarTimeVariant, "DZ_Multiplier", 3, true,
                   public_xtra->numVarIni);
@@ -1475,7 +1482,7 @@ SetupRichards(PFModule * this_module)
 
       if (public_xtra->write_netcdf_mask)
       {
-        sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+        sprintf(nc_postfix, "%07d", instance_xtra->file_number);
         WritePFNC(file_prefix, nc_postfix, t, instance_xtra->mask,
                   public_xtra->numVarTimeVariant, "mask", 3, true,
                   public_xtra->numVarIni);
@@ -1506,7 +1513,7 @@ SetupRichards(PFModule * this_module)
       /* print initial velocities??? jjb */
       if (print_velocities)
       {
-        sprintf(file_postfix, "velx.%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "velx.%07d", instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix,
                       instance_xtra->x_velocity);
         static const char* velx_filenames[] = {
@@ -1517,7 +1524,7 @@ SetupRichards(PFModule * this_module)
                                 sizeof(velx_filenames) / sizeof(velx_filenames[0]),
                                 velx_filenames);
 
-        sprintf(file_postfix, "vely.%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "vely.%07d", instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix,
                       instance_xtra->y_velocity);
         static const char* vely_filenames[] = {
@@ -1528,7 +1535,7 @@ SetupRichards(PFModule * this_module)
                                 sizeof(vely_filenames) / sizeof(vely_filenames[0]),
                                 vely_filenames);
 
-        sprintf(file_postfix, "velz.%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "velz.%07d", instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix,
                       instance_xtra->z_velocity);
         static const char* velz_filenames[] = {
@@ -1767,12 +1774,12 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
   Subvector *eflx_lh_tot_sub, *eflx_lwrad_out_sub, *eflx_sh_tot_sub,
             *eflx_soil_grnd_sub, *qflx_evap_tot_sub, *qflx_evap_grnd_sub,
             *qflx_evap_soi_sub, *qflx_evap_veg_sub, *qflx_tran_veg_sub,
-            *qflx_infl_sub, *swe_out_sub, *t_grnd_sub, *tsoil_sub, *irr_flag_sub,
-            *qflx_qirr_sub, *qflx_qirr_inst_sub;
+            *qflx_infl_sub, *swe_out_sub, *surfalb_out_sub, *t_grnd_sub, *tsoil_sub, *irr_flag_sub,
+            *qflx_qirr_sub, *qflx_qirr_inst_sub;/* ARY */
 
   double *eflx_lh, *eflx_lwrad, *eflx_sh, *eflx_grnd, *qflx_tot, *qflx_grnd,
-         *qflx_soi, *qflx_eveg, *qflx_tveg, *qflx_in, *swe, *t_g, *t_soi, *iflag,
-         *qirr, *qirr_inst;
+         *qflx_soi, *qflx_eveg, *qflx_tveg, *qflx_in, *swe, *surfalb, *t_g, *t_soi, *iflag,
+         *qirr, *qirr_inst; /* ARY */
   int clm_file_dir_length;
 
   double print_cdt;
@@ -2369,6 +2376,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
           VectorSubvector(instance_xtra->qflx_tran_veg, is);
         qflx_infl_sub = VectorSubvector(instance_xtra->qflx_infl, is);
         swe_out_sub = VectorSubvector(instance_xtra->swe_out, is);
+        surfalb_out_sub = VectorSubvector(instance_xtra->surfalb_out, is); /* ARY*/        
         t_grnd_sub = VectorSubvector(instance_xtra->t_grnd, is);
         tsoil_sub = VectorSubvector(instance_xtra->tsoil, is);
         irr_flag_sub = VectorSubvector(instance_xtra->irr_flag, is);
@@ -2437,6 +2445,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
         qflx_tveg = SubvectorData(qflx_tran_veg_sub);
         qflx_in = SubvectorData(qflx_infl_sub);
         swe = SubvectorData(swe_out_sub);
+        surfalb = SubvectorData(surfalb_out_sub); /*ARY*/        
         t_g = SubvectorData(t_grnd_sub);
         t_soi = SubvectorData(tsoil_sub);
         iflag = SubvectorData(irr_flag_sub);
@@ -2560,7 +2569,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
                          slope_x_data, slope_y_data,
                          eflx_lh, eflx_lwrad, eflx_sh,
                          eflx_grnd, qflx_tot, qflx_grnd, qflx_soi,
-                         qflx_eveg, qflx_tveg, qflx_in, swe, t_g,
+                         qflx_eveg, qflx_tveg, qflx_in, swe,surfalb, t_g,
                          t_soi, public_xtra->clm_dump_interval,
                          public_xtra->clm_1d_out,
                          public_xtra->clm_forc_veg,
@@ -2618,7 +2627,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
       }
       else if (public_xtra->evap_trans_file_transient)
       {
-        sprintf(filename, "%s.%05d.pfb",
+        sprintf(filename, "%s.%07d.pfb",
                 public_xtra->evap_trans_filename, (istep - 1));
         printf("%d %s %s \n", istep, filename,
                public_xtra->evap_trans_filename);
@@ -2638,7 +2647,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
             {
               Loopcount = 0;
             }
-            sprintf(filename, "%s.%05d.pfb",
+            sprintf(filename, "%s.%07d.pfb",
                     public_xtra->evap_trans_filename, Loopcount);
             //printf("Using flux file %s \n",filename);
             Loopcount += 1;
@@ -3389,7 +3398,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
     any_file_dumped = 0;
     if (dump_files)
     {
-      sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+      sprintf(nc_postfix, "%07d", instance_xtra->file_number);
       /*KKU: Writing Current time variable value to NC file */
       if (public_xtra->write_netcdf_press
           || public_xtra->write_netcdf_satur
@@ -3407,7 +3416,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->print_press)
       {
-        sprintf(file_postfix, "press.%05d",
+        sprintf(file_postfix, "press.%07d",
                 instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix,
                       instance_xtra->pressure);
@@ -3421,7 +3430,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->write_silo_press)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         sprintf(file_type, "press");
         WriteSilo(file_prefix, file_type, file_postfix,
                   instance_xtra->pressure, t,
@@ -3431,7 +3440,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->write_silopmpio_press)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         sprintf(file_type, "press");
         WriteSiloPMPIO(file_prefix, file_type, file_postfix,
                        instance_xtra->pressure, t,
@@ -3440,9 +3449,9 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
       }
       if (public_xtra->write_netcdf_press)
       {
-        sprintf(file_postfix, "press.%05d",
+        sprintf(file_postfix, "press.%07d",
                 instance_xtra->file_number);
-        sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+        sprintf(nc_postfix, "%07d", instance_xtra->file_number);
         WritePFNC(file_prefix, nc_postfix, t, instance_xtra->pressure,
                   public_xtra->numVarTimeVariant, "pressure", 3, false,
                   public_xtra->numVarIni);
@@ -3451,7 +3460,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->print_velocities)        //jjb
       {
-        sprintf(file_postfix, "velx.%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "velx.%07d", instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix,
                       instance_xtra->x_velocity);
         // Update with new timesteps
@@ -3459,7 +3468,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
                                 js_outputs, file_prefix, t, instance_xtra->file_number,
                                 "x-velocity", "m/s", "x-face", "subsurface", 0, NULL);
 
-        sprintf(file_postfix, "vely.%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "vely.%07d", instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix,
                       instance_xtra->y_velocity);
         // Update with new timesteps
@@ -3467,7 +3476,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
                                 js_outputs, file_prefix, t, instance_xtra->file_number,
                                 "y-velocity", "m/s", "y-face", "subsurface", 0, NULL);
 
-        sprintf(file_postfix, "velz.%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "velz.%07d", instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix,
                       instance_xtra->z_velocity);
         // Update with new timesteps
@@ -3481,7 +3490,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->print_satur)
       {
-        sprintf(file_postfix, "satur.%05d",
+        sprintf(file_postfix, "satur.%07d",
                 instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix,
                       instance_xtra->saturation);
@@ -3495,7 +3504,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->write_silo_satur)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         sprintf(file_type, "satur");
         WriteSilo(file_prefix, file_type, file_postfix,
                   instance_xtra->saturation, t,
@@ -3505,7 +3514,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->write_silopmpio_satur)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         sprintf(file_type, "satur");
         WriteSiloPMPIO(file_prefix, file_type, file_postfix,
                        instance_xtra->saturation, t,
@@ -3514,9 +3523,9 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
       }
       if (public_xtra->write_netcdf_satur)
       {
-        sprintf(file_postfix, "satur.%05d",
+        sprintf(file_postfix, "satur.%07d",
                 instance_xtra->file_number);
-        sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+        sprintf(nc_postfix, "%07d", instance_xtra->file_number);
         WritePFNC(file_prefix, nc_postfix, t,
                   instance_xtra->saturation,
                   public_xtra->numVarTimeVariant, "saturation", 3,
@@ -3526,7 +3535,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->print_evaptrans)
       {
-        sprintf(file_postfix, "evaptrans.%05d",
+        sprintf(file_postfix, "evaptrans.%07d",
                 instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix, evap_trans);
         any_file_dumped = 1;
@@ -3542,7 +3551,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->write_silo_evaptrans)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         sprintf(file_type, "evaptrans");
         WriteSilo(file_prefix, file_type, file_postfix, evap_trans,
                   t, instance_xtra->file_number, "EvapTrans");
@@ -3551,7 +3560,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->write_silopmpio_evaptrans)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         sprintf(file_type, "evaptrans");
         WriteSiloPMPIO(file_prefix, file_type, file_postfix,
                        evap_trans, t, instance_xtra->file_number,
@@ -3561,7 +3570,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->write_netcdf_evaptrans)
       {
-        sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+        sprintf(nc_postfix, "%07d", instance_xtra->file_number);
         WritePFNC(file_prefix, nc_postfix, t, evap_trans,
                   public_xtra->numVarTimeVariant, "evaptrans", 3,
                   false, public_xtra->numVarIni);
@@ -3575,7 +3584,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
       {
         if (public_xtra->write_netcdf_evaptrans_sum)
         {
-          sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+          sprintf(nc_postfix, "%07d", instance_xtra->file_number);
           WritePFNC(file_prefix, nc_postfix, t, evap_trans_sum,
                     public_xtra->numVarTimeVariant, "evaptrans_sum",
                     3, false, public_xtra->numVarIni);
@@ -3584,7 +3593,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
         if (public_xtra->print_evaptrans_sum)
         {
-          sprintf(file_postfix, "evaptranssum.%05d",
+          sprintf(file_postfix, "evaptranssum.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix, evap_trans_sum);
           any_file_dumped = 1;
@@ -3592,7 +3601,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
         if (public_xtra->write_silo_evaptrans_sum)
         {
-          sprintf(file_postfix, "%05d", instance_xtra->file_number);
+          sprintf(file_postfix, "%07d", instance_xtra->file_number);
           sprintf(file_type, "evaptranssum");
           WriteSilo(file_prefix, file_type, file_postfix,
                     evap_trans_sum, t, instance_xtra->file_number,
@@ -3603,7 +3612,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
         if (public_xtra->write_silopmpio_evaptrans_sum)
         {
-          sprintf(file_postfix, "%05d", instance_xtra->file_number);
+          sprintf(file_postfix, "%07d", instance_xtra->file_number);
           sprintf(file_type, "evaptranssum");
           WriteSiloPMPIO(file_prefix, file_type, file_postfix,
                          evap_trans_sum, t,
@@ -3621,7 +3630,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
       {
         if (public_xtra->write_netcdf_overland_sum)
         {
-          sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+          sprintf(nc_postfix, "%07d", instance_xtra->file_number);
           WritePFNC(file_prefix, nc_postfix, t, overland_sum,
                     public_xtra->numVarTimeVariant, "overland_sum",
                     2, false, public_xtra->numVarIni);
@@ -3630,7 +3639,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
         if (public_xtra->print_overland_sum)
         {
-          sprintf(file_postfix, "overlandsum.%05d",
+          sprintf(file_postfix, "overlandsum.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix, overland_sum);
           any_file_dumped = 1;
@@ -3638,7 +3647,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
         if (public_xtra->write_silo_overland_sum)
         {
-          sprintf(file_postfix, "%05d", instance_xtra->file_number);
+          sprintf(file_postfix, "%07d", instance_xtra->file_number);
           sprintf(file_type, "overlandsum");
           WriteSilo(file_prefix, file_type, file_postfix,
                     overland_sum, t, instance_xtra->file_number,
@@ -3648,7 +3657,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
         if (public_xtra->write_silopmpio_overland_sum)
         {
-          sprintf(file_postfix, "%05d", instance_xtra->file_number);
+          sprintf(file_postfix, "%07d", instance_xtra->file_number);
           sprintf(file_type, "overlandsum");
           WriteSiloPMPIO(file_prefix, file_type, file_postfix,
                          overland_sum, t, instance_xtra->file_number,
@@ -3662,7 +3671,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->print_overland_bc_flux)
       {
-        sprintf(file_postfix, "overland_bc_flux.%05d",
+        sprintf(file_postfix, "overland_bc_flux.%07d",
                 instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix,
                       instance_xtra->ovrl_bc_flx);
@@ -3678,7 +3687,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->write_netcdf_overland_bc_flux)
       {
-        sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+        sprintf(nc_postfix, "%07d", instance_xtra->file_number);
         WritePFNC(file_prefix, nc_postfix, t,
                   instance_xtra->ovrl_bc_flx,
                   public_xtra->numVarTimeVariant, "overland_bc_flux",
@@ -3688,7 +3697,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->write_silo_overland_bc_flux)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         sprintf(file_type, "overland_bc_flux");
         WriteSilo(file_prefix, file_type, file_postfix,
                   instance_xtra->ovrl_bc_flx, t,
@@ -3698,7 +3707,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->write_silopmpio_overland_bc_flux)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         sprintf(file_type, "overland_bc_flux");
         WriteSiloPMPIO(file_prefix, file_type, file_postfix,
                        instance_xtra->ovrl_bc_flx, t,
@@ -3710,11 +3719,11 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
       if (public_xtra->print_lsm_sink)
       {
         /*sk Print the sink terms from the land surface model */
-        sprintf(file_postfix, "et.%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "et.%07d", instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix, evap_trans);
 
         /*sk Print the sink terms from the land surface model */
-        sprintf(file_postfix, "obf.%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "obf.%07d", instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix,
                       instance_xtra->ovrl_bc_flx);
         any_file_dumped = 1;
@@ -3740,16 +3749,16 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
       if (public_xtra->write_silo_CLM)
       {
         //          /* IMF Write Met to Silo (for testing) */
-        //          sprintf(file_postfix, "precip.%05d", instance_xtra -> file_number );
+        //          sprintf(file_postfix, "precip.%07d", instance_xtra -> file_number );
         //          WriteSilo( file_prefix, file_postfix, instance_xtra -> prcp_forc,
         //                     t, instance_xtra -> file_number, "Precipitation");
         //          clm_file_dumped = 1;
-        //          sprintf(file_postfix, "air_temp.%05d", instance_xtra -> file_number );
+        //          sprintf(file_postfix, "air_temp.%07d", instance_xtra -> file_number );
         //          WriteSilo( file_prefix, file_postfix, instance_xtra -> tas_forc,
         //                     t, instance_xtra -> file_number, "AirTemperature");
         //          clm_file_dumped = 1;
 
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         sprintf(file_type, "eflx_lh_tot");
         WriteSilo(file_prefix, file_type, file_postfix,
                   instance_xtra->eflx_lh_tot, t,
@@ -3817,7 +3826,15 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
                   instance_xtra->swe_out, t,
                   instance_xtra->file_number, "SWE");
         clm_file_dumped = 1;
-
+        
+        /*AR*/
+        sprintf(file_type, "surfalb_out");
+        WriteSilo(file_prefix, file_type, file_postfix,
+                  instance_xtra->surfalb_out, t,
+                  instance_xtra->file_number, "SurfaceAlbedo");
+        clm_file_dumped = 1;
+        /*AR*/
+        
         sprintf(file_type, "t_grnd");
         WriteSilo(file_prefix, file_type, file_postfix,
                   instance_xtra->t_grnd, t, instance_xtra->file_number,
@@ -3854,7 +3871,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->write_netcdf_clm)
       {
-        sprintf(nc_postfix, "%05d", instance_xtra->file_number);
+        sprintf(nc_postfix, "%07d", instance_xtra->file_number);
         WriteCLMNC(file_prefix, nc_postfix, t,
                    instance_xtra->eflx_lh_tot,
                    public_xtra->numCLMVarTimeVariant, "time", 1);
@@ -3899,6 +3916,10 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
                    public_xtra->numCLMVarTimeVariant, "qflx_infl", 2);
         WriteCLMNC(file_prefix, nc_postfix, t, instance_xtra->swe_out,
                    public_xtra->numCLMVarTimeVariant, "swe_out", 2);
+        /*ARY*/
+        WriteCLMNC(file_prefix, nc_postfix, t, instance_xtra->surfalb_out,
+                   public_xtra->numCLMVarTimeVariant, "surfalb_out", 2);
+	/*ARY*/                   
         WriteCLMNC(file_prefix, nc_postfix, t, instance_xtra->t_grnd,
                    public_xtra->numCLMVarTimeVariant, "t_grnd", 2);
         WriteCLMNC(file_prefix, nc_postfix, t, instance_xtra->tsoil,
@@ -3950,32 +3971,34 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
           PFVLayerCopy(10, 0, instance_xtra->clm_out_grid,
                        instance_xtra->swe_out);
           PFVLayerCopy(11, 0, instance_xtra->clm_out_grid,
-                       instance_xtra->t_grnd);
+                       instance_xtra->surfalb_out);                       
+          PFVLayerCopy(12, 0, instance_xtra->clm_out_grid,
+                       instance_xtra->t_grnd);                       
           nz = SubgridNZ(subgrid);/*BH: number of z layers for extracting surface pressure*/
           /*BH: add surface pressure (pp, layer nz-1) to CLM pfb output (for higher sampling)*/
           /*BH: modify subsequent indices... :*/
-          PFVLayerCopy(12, nz-1, instance_xtra -> clm_out_grid, instance_xtra -> pressure);/*BH*/			 
+          PFVLayerCopy(13, nz-1, instance_xtra -> clm_out_grid, instance_xtra -> pressure);/*BH*/			 
           if (public_xtra->clm_irr_type == 1
               || public_xtra->clm_irr_type == 2)
           {
-            PFVLayerCopy(13, 0, instance_xtra -> clm_out_grid,
+            PFVLayerCopy(14, 0, instance_xtra -> clm_out_grid,
                          instance_xtra->qflx_qirr); /*BH (ind 12->13)*/
           }
           if (public_xtra->clm_irr_type == 3)
           {
-            PFVLayerCopy(13, 0, instance_xtra->clm_out_grid,
+            PFVLayerCopy(14, 0, instance_xtra->clm_out_grid,
                          instance_xtra->qflx_qirr_inst); /*BH (ind 12->13)*/
           }
 
           for (k = 0; k < public_xtra->clm_nz; k++)
           {
             //Write out the bottom layer in the lowest index position, build upward
-            PFVLayerCopy(14 + k, k, instance_xtra->clm_out_grid,
+            PFVLayerCopy(15 + k, k, instance_xtra->clm_out_grid,
                          instance_xtra->tsoil);/*BH (ind 13->14)*/
           }
           /* NBE: added .C instead of writing a different write function with
            * a different extension since PFB is hard-wired */
-          sprintf(file_postfix, "clm_output.%05d.C",
+          sprintf(file_postfix, "clm_output.%07d.C",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->clm_out_grid);
@@ -3991,79 +4014,85 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
         else
         {
           // Otherwise do the old output
-          sprintf(file_postfix, "eflx_lh_tot.%05d",
+          sprintf(file_postfix, "eflx_lh_tot.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->eflx_lh_tot);
           clm_file_dumped = 1;
 
-          sprintf(file_postfix, "eflx_lwrad_out.%05d",
+          sprintf(file_postfix, "eflx_lwrad_out.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->eflx_lwrad_out);
           clm_file_dumped = 1;
 
-          sprintf(file_postfix, "eflx_sh_tot.%05d",
+          sprintf(file_postfix, "eflx_sh_tot.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->eflx_sh_tot);
           clm_file_dumped = 1;
 
-          sprintf(file_postfix, "eflx_soil_grnd.%05d",
+          sprintf(file_postfix, "eflx_soil_grnd.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->eflx_soil_grnd);
           clm_file_dumped = 1;
 
-          sprintf(file_postfix, "qflx_evap_tot.%05d",
+          sprintf(file_postfix, "qflx_evap_tot.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->qflx_evap_tot);
           clm_file_dumped = 1;
 
-          sprintf(file_postfix, "qflx_evap_grnd.%05d",
+          sprintf(file_postfix, "qflx_evap_grnd.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->qflx_evap_grnd);
           clm_file_dumped = 1;
 
-          sprintf(file_postfix, "qflx_evap_soi.%05d",
+          sprintf(file_postfix, "qflx_evap_soi.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->qflx_evap_soi);
           clm_file_dumped = 1;
 
-          sprintf(file_postfix, "qflx_evap_veg.%05d",
+          sprintf(file_postfix, "qflx_evap_veg.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->qflx_evap_veg);
           clm_file_dumped = 1;
 
-          sprintf(file_postfix, "qflx_tran_veg.%05d",
+          sprintf(file_postfix, "qflx_tran_veg.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->qflx_tran_veg);
           clm_file_dumped = 1;
 
-          sprintf(file_postfix, "qflx_infl.%05d",
+          sprintf(file_postfix, "qflx_infl.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->qflx_infl);
           clm_file_dumped = 1;
 
-          sprintf(file_postfix, "swe_out.%05d",
+          sprintf(file_postfix, "swe_out.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->swe_out);
           clm_file_dumped = 1;
-
-          sprintf(file_postfix, "t_grnd.%05d",
+          /* ARY*/
+	  sprintf(file_postfix, "surfalb_out.%07d",
+                  instance_xtra->file_number);
+          WritePFBinary(file_prefix, file_postfix,
+                        instance_xtra->surfalb_out);
+          clm_file_dumped = 1;
+          /* ARY*/
+          sprintf(file_postfix, "t_grnd.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->t_grnd);
           clm_file_dumped = 1;
 
-          sprintf(file_postfix, "t_soil.%05d",
+          sprintf(file_postfix, "t_soil.%07d",
                   instance_xtra->file_number);
           WritePFBinary(file_prefix, file_postfix,
                         instance_xtra->tsoil);
@@ -4073,7 +4102,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
           if (public_xtra->clm_irr_type == 1
               || public_xtra->clm_irr_type == 2)
           {
-            sprintf(file_postfix, "qflx_qirr.%05d",
+            sprintf(file_postfix, "qflx_qirr.%07d",
                     instance_xtra->file_number);
             WritePFBinary(file_prefix, file_postfix,
                           instance_xtra->qflx_qirr);
@@ -4083,7 +4112,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
           // IMF: irrigation applied directly as soil moisture flux -- "instant"
           if (public_xtra->clm_irr_type == 3)
           {
-            sprintf(file_postfix, "qflx_qirr_inst.%05d",
+            sprintf(file_postfix, "qflx_qirr_inst.%07d",
                     instance_xtra->file_number);
             WritePFBinary(file_prefix, file_postfix,
                           instance_xtra->qflx_qirr_inst);
@@ -4226,14 +4255,14 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
   {
     if (public_xtra->print_press)
     {
-      sprintf(file_postfix, "press.%05d", instance_xtra->file_number);
+      sprintf(file_postfix, "press.%07d", instance_xtra->file_number);
       WritePFBinary(file_prefix, file_postfix, instance_xtra->pressure);
       any_file_dumped = 1;
     }
 
     if (public_xtra->write_silo_press)
     {
-      sprintf(file_postfix, "%05d", instance_xtra->file_number);
+      sprintf(file_postfix, "%07d", instance_xtra->file_number);
       sprintf(file_type, "press");
       WriteSilo(file_prefix, file_type, file_postfix,
                 instance_xtra->pressure, t, instance_xtra->file_number,
@@ -4243,7 +4272,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
     if (print_satur)
     {
-      sprintf(file_postfix, "satur.%05d", instance_xtra->file_number);
+      sprintf(file_postfix, "satur.%07d", instance_xtra->file_number);
       WritePFBinary(file_prefix, file_postfix,
                     instance_xtra->saturation);
       any_file_dumped = 1;
@@ -4251,7 +4280,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
     if (public_xtra->write_silo_satur)
     {
-      sprintf(file_postfix, "%05d", instance_xtra->file_number);
+      sprintf(file_postfix, "%07d", instance_xtra->file_number);
       sprintf(file_type, "satur");
       WriteSilo(file_prefix, file_type, file_postfix,
                 instance_xtra->saturation, t, instance_xtra->file_number,
@@ -4261,7 +4290,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
     if (public_xtra->print_evaptrans)
     {
-      sprintf(file_postfix, "evaptrans.%05d",
+      sprintf(file_postfix, "evaptrans.%07d",
               instance_xtra->file_number);
       WritePFBinary(file_prefix, file_postfix, evap_trans);
       any_file_dumped = 1;
@@ -4269,7 +4298,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
     if (public_xtra->write_silo_evaptrans)
     {
-      sprintf(file_postfix, "%05d", instance_xtra->file_number);
+      sprintf(file_postfix, "%07d", instance_xtra->file_number);
       sprintf(file_type, "evaptrans");
       WriteSilo(file_prefix, file_type, file_postfix, evap_trans,
                 t, instance_xtra->file_number, "EvapTrans");
@@ -4281,7 +4310,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
     {
       if (public_xtra->print_evaptrans_sum)
       {
-        sprintf(file_postfix, "evaptranssum.%05d",
+        sprintf(file_postfix, "evaptranssum.%07d",
                 instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix, evap_trans_sum);
         any_file_dumped = 1;
@@ -4289,7 +4318,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->write_silo_evaptrans_sum)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         sprintf(file_type, "evaptranssum");
         WriteSilo(file_prefix, file_type, file_postfix, evap_trans_sum,
                   t, instance_xtra->file_number, "EvapTransSum");
@@ -4305,7 +4334,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
     {
       if (public_xtra->print_overland_sum)
       {
-        sprintf(file_postfix, "overlandsum.%05d",
+        sprintf(file_postfix, "overlandsum.%07d",
                 instance_xtra->file_number);
         WritePFBinary(file_prefix, file_postfix, overland_sum);
         any_file_dumped = 1;
@@ -4313,7 +4342,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
       if (public_xtra->write_silo_overland_sum)
       {
-        sprintf(file_postfix, "%05d", instance_xtra->file_number);
+        sprintf(file_postfix, "%07d", instance_xtra->file_number);
         sprintf(file_type, "overlandsum");
         WriteSilo(file_prefix, file_type, file_postfix, overland_sum,
                   t, instance_xtra->file_number, "OverlandSum");
@@ -4326,7 +4355,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
     if (public_xtra->print_overland_bc_flux)
     {
-      sprintf(file_postfix, "overland_bc_flux.%05d",
+      sprintf(file_postfix, "overland_bc_flux.%07d",
               instance_xtra->file_number);
       WritePFBinary(file_prefix, file_postfix,
                     instance_xtra->ovrl_bc_flx);
@@ -4335,7 +4364,7 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
 
     if (public_xtra->write_silo_overland_bc_flux)
     {
-      sprintf(file_postfix, "%05d", instance_xtra->file_number);
+      sprintf(file_postfix, "%07d", instance_xtra->file_number);
       sprintf(file_type, "overland_bc_flux");
       WriteSilo(file_prefix, file_type, file_postfix,
                 instance_xtra->ovrl_bc_flx, t,
@@ -4347,11 +4376,11 @@ AdvanceRichards(PFModule * this_module, double start_time,      /* Starting time
     if (public_xtra->print_lsm_sink)
     {
       /*sk Print the sink terms from the land surface model */
-      sprintf(file_postfix, "et.%05d", instance_xtra->file_number);
+      sprintf(file_postfix, "et.%07d", instance_xtra->file_number);
       WritePFBinary(file_prefix, file_postfix, evap_trans);
 
       /*sk Print the sink terms from the land surface model */
-      sprintf(file_postfix, "obf.%05d", instance_xtra->file_number);
+      sprintf(file_postfix, "obf.%07d", instance_xtra->file_number);
       WritePFBinary(file_prefix, file_postfix,
                     instance_xtra->ovrl_bc_flx);
 
@@ -4439,6 +4468,9 @@ TeardownRichards(PFModule * this_module)
     FreeVector(instance_xtra->qflx_tran_veg);
     FreeVector(instance_xtra->qflx_infl);
     FreeVector(instance_xtra->swe_out);
+    /*ARY*/
+    FreeVector(instance_xtra->surfalb_out);
+    /*ARY*/    
     FreeVector(instance_xtra->t_grnd);
     FreeVector(instance_xtra->tsoil);
 

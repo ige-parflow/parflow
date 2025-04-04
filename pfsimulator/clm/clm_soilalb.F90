@@ -38,7 +38,8 @@ subroutine clm_soilalb (clm, coszen, nband, albsnd, albsni)
 
   do ib = 1, nband
      if (clm%itypwat == istsoil)  then               !soil
-        inc    = max(0.11-0.40*clm%h2osoi_vol(1), 0._r8)
+        !inc    = max(0.11-0.40*clm%h2osoi_vol(1), 0._r8) ! calé sur 3 mois de données en arizona au siecle dernier
+        inc    = max(0.17-0.6*clm%h2osoi_vol(1), 0._r8) !BH these mahamadi change l'albedo du sol nu cohérent sahel        
         albsod = min(albsat(clm%isoicol,ib)+inc, albdry(clm%isoicol,ib))
         albsoi = albsod
      else if (clm%itypwat == istice)  then           !land ice

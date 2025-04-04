@@ -65,8 +65,6 @@ subroutine clm_dynvegpar (clm)
 !  clm%elai = clm%tlai*(1.-fb) 
 !  clm%esai = clm%tsai*(1.-fb)
 
-!  if (clm%elai < 0.1) clm%elai = 0._r8 !BH
-!  if (clm%esai < 0.1) clm%esai = 0._r8 !BH
 
   if (clm%elai < 0.05) clm%elai = 0._r8
   if (clm%esai < 0.05) clm%esai = 0._r8
